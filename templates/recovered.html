@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Success Stories – Lost & Found Portal{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <h1>🎉 Success Stories</h1>
+  <p>These items have been successfully recovered and returned to their rightful owners!</p>
+</section>
+
+<section class="items-section">
+  <div class="section-title">
+    <h2>Recovered Items</h2>
+    <span class="item-count">{{ items|length }} item{{ 's' if items|length != 1 }}</span>
+  </div>
+
+  {% if items %}
+  <div class="items-grid">
+    {% for item in items %}
+    <div class="item-card resolved-card"
+         onclick="if(event.target.tagName !== 'BUTTON') openModal(this)"
+         data-title="{{ item.title }}" data-desc="{{ item.description }}"
+         data-cat="{{ item.category }}" data-type="{{ item.item_type }}"
+         data-img="{{ item.image }}" data-loc="{{ item.location }}"
+         data-date="{{ item.incident_date }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}"
+         data-contact="{{ item.contact_name or item.owner.name }}{% if item.contact_phone %} ({{ item.contact_phone }}){% endif %}">
+      {% if item.image %}
+        <div class="item-img-wrap">
+          <img src="/uploads/{{ item.image }}" alt="{{ item.title }}" class="item-img"/>
+          <div class="item-img-overlay"></div>
+          <div class="type-badge-img {{ 'lost-badge' if item.item_type == 'lost' else 'found-badge' }}">
+            {{ '🔴 Lost' if item.item_type == 'lost' else '🟢 Found' }}
+          </div>
+          <div class="resolved-stamp">✓ Returned</div>
+        </div>
+      {% else %}
+        <div class="item-no-img">
+          <span>✅</span>
+        </div>
+      {% endif %}
+      <div class="item-body">
+        <div class="item-header">
+          <span class="item-badge {{ 'lost-badge' if item.item_type == 'lost' else 'found-badge' }}">
+            {{ 'Lost' if item.item_type == 'lost' else 'Found' }}
+          </span>
+          <span class="item-cat">{{ item.category }}</span>
+        </div>
+        <h3 class="item-title">{{ item.title }}</h3>
+        <p class="item-desc">{{ item.description }}</p>
+        <div class="item-meta-grid">
+          <div class="meta-row"><span class="meta-icon">📍</span><span>{{ item.location or '—' }}</span></div>
+          <div class="meta-row"><span class="meta-icon">📅</span><span>{{ item.incident_date or '—' }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}</span></div>
+          <div class="meta-row"><span class="meta-icon">👤</span><span>{{ item.contact_name or item.owner.name }}</span></div>
+        </div>
+        <div class="resolved-tag">✓ Successfully Recovered</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-visual"><div class="empty-ring ring1"></div><div class="empty-ring ring2"></div><span class="empty-icon">🤝</span></div>
+    <h3>No items recovered yet</h3>
+    <p>Help the community by reporting found items.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

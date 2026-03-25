@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Browse Items – Lost & Found Portal{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <h1>🔎 Browse All Items</h1>
+  <p>Search through all reported lost and found items from the community.</p>
+</section>
+
+<section class="browse-filters">
+  <form method="GET" action="/browse" class="filter-form" id="browse-filter-form">
+    <div class="search-wrap">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" name="q" id="search-input" placeholder="Search by title or description…" value="{{ query }}"/>
+    </div>
+    <select name="category" onchange="this.form.submit()">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+      <option value="{{ cat }}" {{ 'selected' if sel_category == cat }}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if query or sel_category %}
+    <a href="/browse" class="btn btn-ghost">Clear</a>
+    {% endif %}
+  </form>
+</section>
+
+<section class="items-section">
+  <div class="section-title">
+    <h2>Results</h2>
+    <span class="item-count">{{ items|length }} item{{ 's' if items|length != 1 }}</span>
+  </div>
+
+  {% if items %}
+  <div class="items-grid">
+    {% for item in items %}
+    <div class="item-card {{ 'resolved-card' if item.status == 'resolved' }}"
+         onclick="if(event.target.tagName !== 'BUTTON') openModal(this)"
+         data-title="{{ item.title }}" data-desc="{{ item.description }}"
+         data-cat="{{ item.category }}" data-type="{{ item.item_type }}"
+         data-img="{{ item.image }}" data-loc="{{ item.location }}"
+         data-date="{{ item.incident_date }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}"
+         data-contact="{{ item.contact_name or item.owner.name }}{% if item.contact_phone %} ({{ item.contact_phone }}){% endif %}">
+      {% if item.image %}
+        <div class="item-img-wrap">
+          <img src="/uploads/{{ item.image }}" alt="{{ item.title }}" class="item-img"/>
+          <div class="item-img-overlay"></div>
+          <div class="type-badge-img {{ 'lost-badge' if item.item_type == 'lost' else 'found-badge' }}">
+            {{ '🔴 Lost' if item.item_type == 'lost' else '🟢 Found' }}
+          </div>
+        </div>
+      {% else %}
+        <div class="item-no-img">
+          <span>{{ '🔴' if item.item_type == 'lost' else '🟢' }}</span>
+        </div>
+      {% endif %}
+      <div class="item-body">
+        <div class="item-header">
+          <span class="item-badge {{ 'lost-badge' if item.item_type == 'lost' else 'found-badge' }}">
+            {{ 'Lost' if item.item_type == 'lost' else 'Found' }}
+          </span>
+          <span class="item-cat">{{ item.category }}</span>
+        </div>
+        <h3 class="item-title">{{ item.title }}</h3>
+        <p class="item-desc">{{ item.description }}</p>
+        <div class="item-meta-grid">
+          <div class="meta-row"><span class="meta-icon">📍</span><span>{{ item.location or '—' }}</span></div>
+          <div class="meta-row"><span class="meta-icon">📅</span><span>{{ item.incident_date or '—' }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}</span></div>
+          <div class="meta-row"><span class="meta-icon">👤</span><span>{{ item.contact_name or item.owner.name }}</span></div>
+          {% if item.contact_phone %}<div class="meta-row"><span class="meta-icon">📞</span><span>{{ item.contact_phone }}</span></div>{% endif %}
+          {% if item.contact_email %}<div class="meta-row contact-email"><span class="meta-icon">✉️</span><a href="mailto:{{ item.contact_email }}">{{ item.contact_email }}</a></div>{% endif %}
+        </div>
+        {% if item.status == 'resolved' %}
+          <div class="resolved-tag">✓ Resolved</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-visual"><div class="empty-ring ring1"></div><div class="empty-ring ring2"></div><span class="empty-icon">🔎</span></div>
+    <h3>No items found</h3>
+    <p>Try a different search or be the first to report.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/report-lost"  class="btn btn-danger">Report Lost</a>
+      <a href="/report-found" class="btn btn-success">Report Found</a>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

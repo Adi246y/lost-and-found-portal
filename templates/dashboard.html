@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – Lost & Found Portal{% endblock %}
+{% block content %}
+
+<section class="dash-hero">
+  <div class="dash-hero-text">
+    <span class="greet-chip">👋 Welcome back</span>
+    <h1>{{ current_user.name }}'s Dashboard</h1>
+    <p>Manage your lost and found reports all in one place.</p>
+  </div>
+  <div class="dash-hero-btns">
+    <a href="/report-lost"  class="btn btn-danger">＋ Report Lost</a>
+    <a href="/report-found" class="btn btn-success">＋ Report Found</a>
+  </div>
+</section>
+
+<section class="stats-bar">
+  <div class="stat-tile">
+    <div class="stat-tile-num">{{ lost_items|length }}</div>
+    <div class="stat-tile-label">Lost Reports</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile-num">{{ found_items|length }}</div>
+    <div class="stat-tile-label">Found Reports</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile-num">{{ (lost_items + found_items)|selectattr('status','eq','resolved')|list|length }}</div>
+    <div class="stat-tile-label">Resolved</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile-num">{{ (lost_items + found_items)|length }}</div>
+    <div class="stat-tile-label">Total Reports</div>
+  </div>
+</section>
+
+<!-- LOST ITEMS -->
+<section class="items-section">
+  <div class="section-title">
+    <h2>🔴 Lost Items</h2>
+    <span class="item-count">{{ lost_items|length }} report{{ 's' if lost_items|length != 1 }}</span>
+  </div>
+
+  {% if lost_items %}
+  <div class="items-grid">
+    {% for item in lost_items %}
+    <div class="item-card {{ 'resolved-card' if item.status == 'resolved' }}"
+         onclick="if(event.target.tagName !== 'BUTTON') openModal(this)"
+         data-title="{{ item.title }}" data-desc="{{ item.description }}"
+         data-cat="{{ item.category }}" data-type="{{ item.item_type }}"
+         data-img="{{ item.image }}" data-loc="{{ item.location }}"
+         data-date="{{ item.incident_date }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}"
+         data-contact="{{ item.contact_name }}{% if item.contact_phone %} ({{ item.contact_phone }}){% endif %}">
+      {% if item.image %}
+        <div class="item-img-wrap">
+          <img src="/uploads/{{ item.image }}" alt="{{ item.title }}" class="item-img"/>
+          <div class="item-img-overlay"></div>
+          {% if item.status == 'resolved' %}<div class="resolved-stamp">✓ Resolved</div>{% endif %}
+        </div>
+      {% else %}
+        <div class="item-no-img">
+          <span>{{ '✅' if item.status == 'resolved' else '📦' }}</span>
+        </div>
+      {% endif %}
+      <div class="item-body">
+        <div class="item-header">
+          <span class="item-badge lost-badge">Lost</span>
+          <span class="item-cat">{{ item.category }}</span>
+        </div>
+        <h3 class="item-title">{{ item.title }}</h3>
+        <p class="item-desc">{{ item.description }}</p>
+        <div class="item-meta-grid">
+          <div class="meta-row"><span class="meta-icon">📍</span><span>{{ item.location or '—' }}</span></div>
+          <div class="meta-row"><span class="meta-icon">📅</span><span>{{ item.incident_date or '—' }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}</span></div>
+          <div class="meta-row"><span class="meta-icon">👤</span><span>{{ item.contact_name or '—' }}</span></div>
+          {% if item.contact_phone %}<div class="meta-row"><span class="meta-icon">📞</span><span>{{ item.contact_phone }}</span></div>{% endif %}
+          {% if item.contact_email %}<div class="meta-row"><span class="meta-icon">✉️</span><span>{{ item.contact_email }}</span></div>{% endif %}
+        </div>
+        {% if item.status == 'open' %}
+        <form method="POST" action="/resolve/{{ item.id }}" style="margin-top:14px">
+          <button type="submit" class="btn btn-resolve">✓ Mark as Resolved</button>
+        </form>
+        {% else %}
+          <div class="resolved-tag">✓ Resolved</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-visual"><div class="empty-ring ring1"></div><div class="empty-ring ring2"></div><span class="empty-icon">🔴</span></div>
+    <h3>No lost items reported</h3>
+    <p>Report a lost item and we'll help track it down.</p>
+    <a href="/report-lost" class="btn btn-danger">Report Lost Item</a>
+  </div>
+  {% endif %}
+</section>
+
+<!-- FOUND ITEMS -->
+<section class="items-section">
+  <div class="section-title">
+    <h2>🟢 Found Items</h2>
+    <span class="item-count">{{ found_items|length }} report{{ 's' if found_items|length != 1 }}</span>
+  </div>
+
+  {% if found_items %}
+  <div class="items-grid">
+    {% for item in found_items %}
+    <div class="item-card {{ 'resolved-card' if item.status == 'resolved' }}"
+         onclick="if(event.target.tagName !== 'BUTTON') openModal(this)"
+         data-title="{{ item.title }}" data-desc="{{ item.description }}"
+         data-cat="{{ item.category }}" data-type="{{ item.item_type }}"
+         data-img="{{ item.image }}" data-loc="{{ item.location }}"
+         data-date="{{ item.incident_date }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}"
+         data-contact="{{ item.contact_name }}{% if item.contact_phone %} ({{ item.contact_phone }}){% endif %}">
+      {% if item.image %}
+        <div class="item-img-wrap">
+          <img src="/uploads/{{ item.image }}" alt="{{ item.title }}" class="item-img"/>
+          <div class="item-img-overlay"></div>
+          {% if item.status == 'resolved' %}<div class="resolved-stamp">✓ Resolved</div>{% endif %}
+        </div>
+      {% else %}
+        <div class="item-no-img"><span>{{ '✅' if item.status == 'resolved' else '🟢' }}</span></div>
+      {% endif %}
+      <div class="item-body">
+        <div class="item-header">
+          <span class="item-badge found-badge">Found</span>
+          <span class="item-cat">{{ item.category }}</span>
+        </div>
+        <h3 class="item-title">{{ item.title }}</h3>
+        <p class="item-desc">{{ item.description }}</p>
+        <div class="item-meta-grid">
+          <div class="meta-row"><span class="meta-icon">📍</span><span>{{ item.location or '—' }}</span></div>
+          <div class="meta-row"><span class="meta-icon">📅</span><span>{{ item.incident_date or '—' }}{% if item.incident_time %} at {{ item.incident_time }}{% endif %}</span></div>
+          <div class="meta-row"><span class="meta-icon">👤</span><span>{{ item.contact_name or '—' }}</span></div>
+          {% if item.contact_phone %}<div class="meta-row"><span class="meta-icon">📞</span><span>{{ item.contact_phone }}</span></div>{% endif %}
+          {% if item.contact_email %}<div class="meta-row"><span class="meta-icon">✉️</span><span>{{ item.contact_email }}</span></div>{% endif %}
+        </div>
+        {% if item.status == 'open' %}
+        <form method="POST" action="/resolve/{{ item.id }}" style="margin-top:14px">
+          <button type="submit" class="btn btn-resolve">✓ Mark as Resolved</button>
+        </form>
+        {% else %}
+          <div class="resolved-tag">✓ Resolved</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-visual"><div class="empty-ring ring1"></div><div class="empty-ring ring2"></div><span class="empty-icon">🟢</span></div>
+    <h3>No found items reported</h3>
+    <p>If you found something, report it here so the owner can contact you.</p>
+    <a href="/report-found" class="btn btn-success">Report Found Item</a>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

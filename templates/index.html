@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Home – Lost & Found Portal{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="hero-badge">✦ Smart Recovery System</span>
+        <h1>Find What You've Lost</h1>
+        <p>Report lost or found items in seconds. Connect with the community and recover faster.</p>
+        <div class="hero-actions">
+            <a href="/report-lost" class="btn btn-primary">📋 Report Lost Item</a>
+            <a href="/dashboard" class="btn btn-outline">📊 View Dashboard</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="floating-card fc1">🔑 Keys Found</div>
+        <div class="floating-card fc2">👜 Bag Recovered</div>
+        <div class="floating-card fc3">📱 Phone Returned</div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="section-header">
+        <h2>How It Works</h2>
+        <p>Three simple steps to recover your belongings</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Report Items</h3>
+            <p>Quickly submit a lost or found item with a description, location, and optional photo.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔎</div>
+            <h3>Search Easily</h3>
+            <p>Browse the dashboard to find items that match what you've lost or found.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Recover Faster</h3>
+            <p>Connect with the finder or owner, and get your belongings back quickly.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

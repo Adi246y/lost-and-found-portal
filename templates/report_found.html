@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Report Found Item – Lost & Found Portal{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="page-hero-badge found-badge-hero">🟢 Found Item Report</div>
+  <h1>Report a Found Item</h1>
+  <p>Tell us what you found, where, and how the owner can reach you.</p>
+</section>
+
+<section class="form-section">
+  <form method="POST" enctype="multipart/form-data" class="report-form" id="report-found-form">
+
+    <div class="form-section-label">📦 Item Details</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="category">Category <span class="req">*</span></label>
+        <select id="category" name="category" required>
+          <option value="" disabled selected>Select category…</option>
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="title">Item Name <span class="req">*</span></label>
+        <input type="text" id="title" name="title" placeholder="e.g. Set of Keys with Red Keychain" required/>
+      </div>
+      <div class="form-group full">
+        <label for="description">Description <span class="req">*</span></label>
+        <textarea id="description" name="description" rows="3" placeholder="Describe the item – color, brand, condition, any visible markings…" required></textarea>
+      </div>
+    </div>
+
+    <div class="form-section-label">📍 Where &amp; When Found</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label for="location">Found Location <span class="req">*</span></label>
+        <input type="text" id="location" name="location" placeholder="e.g. Block C Canteen, near the entrance door" required/>
+      </div>
+      <div class="form-group">
+        <label for="incident_date">Date Found <span class="req">*</span></label>
+        <input type="date" id="incident_date" name="incident_date" max="{{ now_date }}" required/>
+      </div>
+      <div class="form-group">
+        <label for="incident_time">Time Found</label>
+        <input type="time" id="incident_time" name="incident_time"/>
+      </div>
+    </div>
+
+    <div class="form-section-label">👤 Your Contact Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="contact_name">Your Name <span class="req">*</span></label>
+        <input type="text" id="contact_name" name="contact_name" value="{{ current_user.name }}" required/>
+      </div>
+      <div class="form-group">
+        <label for="contact_phone">Phone Number <span class="req">*</span></label>
+        <input type="tel" id="contact_phone" name="contact_phone" placeholder="+91 98765 43210" required/>
+      </div>
+      <div class="form-group full">
+        <label for="contact_email">Email Address</label>
+        <input type="email" id="contact_email" name="contact_email" value="{{ current_user.email }}" placeholder="owner can email you here"/>
+      </div>
+    </div>
+
+    <div class="form-section-label">🖼️ Photo of Found Item (optional but recommended)</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <div class="file-drop" id="file-drop">
+          <input type="file" id="image" name="image" accept="image/*" onchange="previewFile(this)"/>
+          <div class="file-drop-inner" id="drop-inner">
+            <span class="file-icon">📸</span>
+            <span>Upload a photo to help the owner identify their item</span>
+            <span class="file-hint">PNG, JPG, WEBP · max 10 MB</span>
+          </div>
+          <img id="img-preview" src="" alt="Preview" style="display:none; width:100%; max-height:220px; object-fit:cover; border-radius:10px;"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="/dashboard" class="btn btn-ghost">← Cancel</a>
+      <button type="submit" class="btn btn-success">🟢 Submit Found Report</button>
+    </div>
+  </form>
+</section>
+
+<script>
+function previewFile(input) {
+  const preview   = document.getElementById('img-preview');
+  const dropInner = document.getElementById('drop-inner');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; dropInner.style.display = 'none'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+document.getElementById('incident_date').value = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}
